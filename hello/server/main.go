@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/credentials"
 	pb "hello-protobuf/proto/hello" // 引入编译生成的包
 	"net"
 	_ "net"
@@ -32,15 +32,17 @@ func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.He
 func main() {
 	listen, err := net.Listen("tcp", Address)
 	if err != nil {
-		grpclog.Fatalf("Failed to listen: %v", err)
+		println("报错:", err)
 	}
-
+	creds, err := credentials.NewServerTLSFromFile("C:/Users/admin/go/src/hello-protobuf/keys/server.pem", "C:/Users/admin/go/src/hello-protobuf/keys/server.key")
+	if err != nil {
+		println("服务器tls报错:", err)
+	}
 	// 实例化grpc Server
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.Creds(creds))
 
 	// 注册HelloService
 	pb.RegisterHelloServer(s, HelloService)
 
-	grpclog.Println("Listen on yx" + Address)
 	s.Serve(listen)
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 	pb "hello-protobuf/proto/hello" // 引入proto包
 )
@@ -13,8 +14,14 @@ const (
 )
 
 func main() {
+	//tls 链接
+	creds, err := credentials.NewClientTLSFromFile("C:/Users/admin/go/src/hello-protobuf/keys/server.pem", "WWW.BAIDU.COM")
+	if err != nil {
+		println("客户端tls错误：", err)
+	}
+
 	// 连接
-	conn, err := grpc.Dial(Address, grpc.WithInsecure())
+	conn, err := grpc.Dial(Address, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		grpclog.Fatalln(err)
 	}
